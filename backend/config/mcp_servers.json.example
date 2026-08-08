@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "bing_cn": {
+      "type": "sse",
+      "url": "https://mcp-bing-cn.ksai.scnet.cn:58043/sse",
+      "enabled": true,
+      "description": "必应中文搜索服务"
+    },
+    "web_search": {
+      "type": "sse",
+      "url": "https://your-search-server.com/sse",
+      "enabled": false,
+      "description": "通用网页搜索（示例）"
+    },
+    "memory_store": {
+      "type": "sse",
+      "url": "https://your-memory-server.com/sse",
+      "enabled": false,
+      "description": "外部记忆存储（示例）"
+    }
+  }
+}

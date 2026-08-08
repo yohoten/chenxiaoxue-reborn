@@ -1,0 +1,71 @@
+launcher.bat          # 交互式菜单
+launcher.bat setup    # 一键安装
+launcher.bat dev      # 启动开发模式
+launcher.bat backend  # 仅后端
+launcher.bat frontend # 仅前端
+launcher.bat tare    # Tauri 桌面
+launcher.bat test     # 测试模式
+launcher.bat prod     # 生产模式
+
+cd "d:\chenxiaoxue-orgin&reborn_250825\chenxiaoxue-reborn\frontend" ; node node_modules/vite/bin/vite.js
+
+cd backend && .venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
+
+CYBER
+
+========================================
+  launcher.bat 快速参考卡
+========================================
+
+【重要】由于路径包含 & 符号，请使用以下方式运行：
+
+✅ 推荐方式（CMD）:
+   1. 打开 CMD（Win+R → cmd）
+   2. cd /d "d:\chenxiaoxue-orgin&reborn_250825\chenxiaoxue-reborn"
+   3. launcher.bat [mode]
+
+✅ 最简单方式:
+   直接双击 launcher.bat 文件
+
+----------------------------------------
+可用命令:
+----------------------------------------
+launcher.bat          → 交互式菜单
+launcher.bat setup    → 一键安装环境
+launcher.bat dev      → 开发模式（后端+前端）
+launcher.bat backend  → 仅启动后端 (:8000)
+launcher.bat frontend → 仅启动前端 (:5173)
+launcher.bat tauri    → Tauri 桌面应用
+launcher.bat test     → 测试模式（自动开浏览器）
+launcher.bat prod     → 生产模式
+
+----------------------------------------
+常见问题:
+----------------------------------------
+Q: 显示"系统找不到指定的路径"？
+A: 请在 CMD 中使用 cd /d 切换目录后再运行
+
+Q: 中文显示乱码？
+A: 确保在 CMD 窗口中运行（不是 PowerShell）
+
+Q: timeout 命令不存在？
+A: 已内置兼容方案，会自动使用 ping
+
+----------------------------------------
+服务地址:
+----------------------------------------
+前端:     http://localhost:5173
+后端:     http://localhost:8000
+API文档:  http://localhost:8000/docs
+健康检查: http://localhost:8000/health
+
+----------------------------------------
+最佳实践建议:
+----------------------------------------
+将项目移动到不含特殊字符的路径，例如:
+d:\projects\chenxiaoxue-reborn
+
+========================================
+详细文档: LAUNCHER_GUIDE.md
+测试报告: LAUNCHER_TEST_REPORT.md
+========================================

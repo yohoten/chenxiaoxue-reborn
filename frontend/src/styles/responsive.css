@@ -1,0 +1,514 @@
+/* 响应式设计优化 - 增强的媒体查询 */
+/* 位置: frontend/src/styles/responsive.css */
+
+/* ==================== 断点定义 ==================== */
+:root {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ==================== 移动端优化 (< 768px) ==================== */
+@media (max-width: 767px) {
+  /* 布局调整 */
+  .main-layout {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+  }
+
+  .left-panel {
+    width: 100%;
+    min-width: unset;
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .chat-panel {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* 左侧面板内容压缩 */
+  .left-panel-section {
+    gap: 6px;
+  }
+
+  /* 角色面板压缩 */
+  .character-panel {
+    min-height: 120px;
+  }
+
+  .character-panel img {
+    max-height: 120px;
+  }
+
+  /* ECG状态栏压缩 */
+  .ecg-status-bar canvas {
+    height: 50px !important;
+  }
+
+  .ecg-status-bar {
+    margin-top: 4px;
+    padding: 2px;
+  }
+
+  .ecg-status-bar .pixel-text--secondary {
+    font-size: 10px !important;
+    margin-top: 3px !important;
+  }
+
+  /* 导航栏 - 水平滚动 */
+  .nav-bar {
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 4px;
+    gap: 3px;
+    order: 0;
+  }
+
+  .nav-bar::before {
+    display: none;
+  }
+
+  .nav-item {
+    min-width: auto;
+    font-size: 10px;
+    padding: 6px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .nav-item::before {
+    display: none !important;
+  }
+
+  .nav-item--active {
+    border-bottom: 3px solid var(--accent-primary);
+  }
+
+  /* 快速操作栏 */
+  .quick-action-bar {
+    margin-top: 4px;
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .quick-action-bar .pixel-btn {
+    font-size: 10px !important;
+    padding: 5px 6px;
+    min-width: auto;
+  }
+
+  /* 消息气泡优化 */
+  .message-bubble {
+    max-width: 90%;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .message-list {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  /* 输入框优化 */
+  .input-area {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .input-area .pixel-input {
+    font-size: 13px;
+    padding: 8px 10px 8px 24px;
+  }
+
+  .input-area .pixel-btn {
+    font-size: 11px;
+    min-width: 56px;
+    padding: 6px 8px;
+  }
+
+  /* 标签内容动画调整 */
+  .tab-content {
+    animation-duration: 0.2s;
+  }
+
+  /* 按钮触摸友好 */
+  .pixel-btn {
+    min-height: 36px;
+  }
+}
+
+/* ==================== 平板优化 (768px - 1024px) ==================== */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .main-layout {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .left-panel {
+    width: 260px;
+    min-width: 260px;
+  }
+
+  .chat-panel {
+    flex: 1;
+  }
+
+  .character-panel {
+    min-height: 200px;
+  }
+
+  .nav-bar {
+    gap: 3px;
+    padding: 6px;
+  }
+
+  .nav-item {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+}
+
+/* ==================== 桌面端优化 (>= 1024px) ==================== */
+@media (min-width: 1024px) {
+  .main-layout {
+    max-width: 1600px;
+    margin: 0 auto;
+    gap: 20px;
+  }
+
+  .left-panel {
+    width: 320px;
+  }
+
+  .chat-panel {
+    flex: 1;
+    max-width: 1200px;
+  }
+}
+
+/* ==================== 大屏幕优化 (>= 1536px) ==================== */
+@media (min-width: 1536px) {
+  .main-layout {
+    max-width: 1800px;
+  }
+
+  .left-panel {
+    width: 360px;
+  }
+
+  .chat-panel {
+    max-width: 1400px;
+  }
+
+  .message-list {
+    font-size: 15px;
+  }
+}
+
+/* ==================== 横屏/竖屏检测 ==================== */
+@media (orientation: landscape) and (max-height: 600px) {
+  .left-panel {
+    max-height: 100vh;
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .character-panel {
+    display: none;
+  }
+
+  .nav-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .nav-bar::before {
+    display: none;
+  }
+
+  .nav-item {
+    flex: 1;
+    min-width: 60px;
+    font-size: 10px;
+    padding: 4px 6px;
+  }
+}
+
+@media (orientation: portrait) {
+  .nav-bar {
+    position: static;
+  }
+
+  .main-layout {
+    padding-bottom: 0;
+  }
+}
+
+/* ==================== 高DPI屏幕优化 ==================== */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .pixel-border {
+    border-width: 0.5px;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ==================== 减少动画偏好 ==================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==================== 亮色 / 深色模式 ==================== */
+/* 深色模式 — 确保毛玻璃与暗色变量协调 */
+@media (prefers-color-scheme: dark) {
+  .glass-effect {
+    background-color: rgba(30, 30, 46, 0.9);
+  }
+}
+
+/* 亮色模式 — 完整 CSS 变量覆盖 */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-color: #f5f0e8;
+    --surface-color: #fffaf3;
+    --text-primary: #2d2a24;
+    --text-secondary: #6b6560;
+    --accent-primary: #e08c2a;
+    --accent-secondary: #3a5fa0;
+    --border-color: #d9cebe;
+    --success: #22a85e;
+    --warning: #d4950b;
+    --error: #dc4040;
+    --info: #1e8ec7;
+
+    --button-color: #e8ddd0;
+    --button-hover: #22a85e;
+    --shadow-color: #c4b5a0;
+
+    --glow-color: rgba(224, 140, 42, 0.25);
+  }
+
+  .glass-effect {
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.06);
+  }
+
+  /* CRT 扫描线在亮色下更淡 */
+  .app-container::before {
+    opacity: 0.5;
+  }
+
+  .app-container::after {
+    opacity: 0.004;
+  }
+
+  /* 消息气泡亮色调整 */
+  .message-bubble--user {
+    background-color: rgba(58, 95, 160, 0.12);
+    border-color: #5a87c7;
+  }
+
+  .message-bubble--assistant {
+    background-color: rgba(0, 0, 0, 0.04);
+    border-color: #d0c8bb;
+  }
+
+  /* 输入框亮色 */
+  .pixel-input {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-color: #d0c8bb;
+    color: var(--text-primary);
+  }
+
+  .pixel-input:focus {
+    border-color: var(--accent-secondary);
+    background-color: rgba(58, 95, 160, 0.04);
+    box-shadow: 0 0 0 1px rgba(58, 95, 160, 0.2), 0 0 10px rgba(58, 95, 160, 0.1);
+  }
+
+  /* ECG 容器亮色 */
+  .ecg-css-container {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  .ecg-status-bar canvas {
+    background: rgba(255, 255, 255, 0.6);
+  }
+
+  /* 面板亮色 */
+  .left-panel,
+  .chat-panel {
+    background-color: rgba(255, 250, 243, 0.5);
+    border-color: #d9cebe;
+  }
+
+  /* 导航栏亮色 */
+  .nav-bar {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  .nav-item {
+    background: rgba(0, 0, 0, 0.02);
+    color: var(--text-primary);
+  }
+
+  .nav-item:hover {
+    background: rgba(58, 95, 160, 0.1);
+    border-color: var(--accent-secondary);
+  }
+
+  .nav-item--active {
+    background: rgba(224, 140, 42, 0.1);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+  }
+
+  /* 输入区域亮色 */
+  .input-area {
+    background-color: rgba(0, 0, 0, 0.02);
+    border-top-color: rgba(0, 0, 0, 0.06);
+  }
+  .input-area-inner {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+  }
+  .input-area-inner:focus-within {
+    border-color: rgba(58, 95, 160, 0.3);
+    box-shadow: 0 0 10px rgba(58, 95, 160, 0.06);
+  }
+
+  /* 左侧面板分割线 */
+  .left-panel-divider {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  /* 侧栏 Tab */
+  .sidebar-tab {
+    color: var(--text-secondary);
+  }
+  .sidebar-tab:hover {
+    color: var(--text-primary);
+  }
+
+  /* 最近对话 */
+  .sidebar-chat-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+  .sidebar-chat-item--all {
+    border-top-color: rgba(0, 0, 0, 0.06);
+  }
+
+  /* 交互项 */
+  .sidebar-int-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  /* Tab 标题栏 */
+  .tab-title-bar {
+    border-bottom-color: rgba(0, 0, 0, 0.06);
+  }
+
+  /* 底部 popover */
+  .bottom-popover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: var(--border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  .bottom-popover-item:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+  .bottom-popover-divider {
+    background: rgba(0, 0, 0, 0.06);
+  }
+
+  /* 信息面板 */
+  .info-stat {
+    border-bottom-color: rgba(0, 0, 0, 0.04);
+  }
+
+  /* 滚动条亮色 */
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.03);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
+  }
+
+  /* ── Auth 页面亮色适配 ─────────────────────────────── */
+  .pixel-border-box {
+    background: rgba(255, 250, 243, 0.5);
+    border-color: var(--border-color);
+  }
+  .auth-chat-header {
+    background: rgba(0, 0, 0, 0.02);
+    border-bottom-color: var(--border-color);
+  }
+  .character-emotion-badge {
+    background: rgba(255, 255, 255, 0.75);
+    color: var(--text-primary);
+  }
+  .auth-sidebar-footer {
+    border-top-color: var(--border-color);
+  }
+  .message-bubble--error {
+    background: rgba(248, 113, 113, 0.06);
+  }
+  .message-bubble--success {
+    background: rgba(74, 222, 128, 0.06);
+  }
+}
+
+/* ==================== 打印样式 ==================== */
+@media print {
+  .nav-bar,
+  .left-panel,
+  .chat-input,
+  .pixel-btn {
+    display: none;
+  }
+
+  .message-list {
+    overflow: visible;
+    height: auto;
+  }
+
+  .chat-bubble {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* ==================== 折叠设备支持 ==================== */
+@media (spanning: single-fold-vertical) {
+  .main-layout {
+    display: grid;
+    grid-template-columns: env(fold-left) 1fr;
+  }
+}
+
+@media (spanning: single-fold-horizontal) {
+  .main-layout {
+    display: grid;
+    grid-template-rows: env(fold-top) 1fr;
+  }
+}

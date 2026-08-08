@@ -1,0 +1,40 @@
+# FastAPI & Server
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+pydantic==2.9.0
+pydantic-settings==2.5.0
+
+# Database
+sqlalchemy==2.0.35
+aiosqlite==0.20.0
+alembic==1.13.0
+
+# HTTP & MCP
+httpx==0.27.0
+sse-starlette==2.1.0
+websockets==13.0
+
+# AI SDKs
+openai==1.50.0
+
+# Authentication (新增)
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1  # pin for passlib compatibility (bcrypt 5+ breaks passlib)
+email-validator==2.2.0
+
+# Text Processing
+jieba==0.42.1
+snownlp==0.12.3
+
+# Utilities
+python-dotenv==1.0.0
+pyyaml==6.0.2
+Pillow==10.4.0
+loguru==0.7.2
+cachetools==5.5.0  # TTL 缓存（资源列表缓存）
+slowapi==0.1.9  # API 限流
+
+# Testing
+pytest==8.3.0
+pytest-asyncio==0.24.0

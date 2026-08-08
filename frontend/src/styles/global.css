@@ -1,0 +1,825 @@
+/**
+ * Chen筱雪 Reborn - 全局布局样式 (增强版)
+ * 优化像素风格布局一致性
+ * 集成 CRT 显示效果（Retro/Wabi-Sabi）
+ */
+
+/* ── CRT 效果开关 ──────────────────────────────────────── */
+.crt-disabled .app-container::before,
+.crt-disabled .app-container::after {
+  display: none;
+}
+
+/* ── 应用容器 ──────────────────────────────────────────── */
+.app-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CRT 显示器质感 - 全屏扫描线/噪点叠加层
+   极淡的线性渐变模拟老式 CRT 显示器扫描线
+   mix-blend-mode: overlay 让效果与背景自然融合
+   纯 CSS 实现，对性能影响极小
+   ═══════════════════════════════════════════════════════════ */
+.app-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100;
+  pointer-events: none;
+  /* GPU 加速：避免每帧触发全页面 repaint */
+  will-change: background-position;
+  transform: translateZ(0);
+
+  /* 扫描线 + RGB 像素偏移（极淡） */
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.035) 0px,
+      rgba(0, 0, 0, 0.035) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.008) 0px,
+      rgba(0, 255, 0, 0.008) 1px,
+      rgba(0, 0, 255, 0.008) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+
+  mix-blend-mode: overlay;
+  animation: crt-scan-drift 12s linear infinite;
+}
+
+/* 当毛玻璃效果开启时，略微增强扫描线，与玻璃质感呼应 */
+.glass-effect-enabled .app-container::before {
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.04) 0px,
+      rgba(0, 0, 0, 0.04) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 0, 0, 0.01) 0px,
+      rgba(0, 255, 0, 0.01) 1px,
+      rgba(0, 0, 255, 0.01) 2px,
+      transparent 2px,
+      transparent 4px
+    );
+}
+
+/* ── CRT 扫描线动画·极缓垂直漂移 ──────────────────────── */
+@keyframes crt-scan-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 0 6px; }
+}
+
+/* ── CRT 噪点动画·随机位移模拟雪花闪烁 ──────────────────── */
+@keyframes crt-noise-flicker {
+  0%   { background-position: 0 0; }
+  25%  { background-position: 32px 16px; }
+  50%  { background-position: 16px 48px; }
+  75%  { background-position: 48px 32px; }
+  100% { background-position: 0 0; }
+}
+
+/* ── CRT 微噪点纹理（SVG data URI，零额外请求）────── */
+.app-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 99;
+  pointer-events: none;
+  opacity: 0.008;
+  will-change: background-position;
+  transform: translateZ(0);
+
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 64 64' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='64' height='64' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  mix-blend-mode: overlay;
+  animation: crt-noise-flicker 1.5s steps(4) infinite;
+}
+
+/* ── 背景层 ────────────────────────────────────────────── */
+.background-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+/* ── 主布局 ────────────────────────────────────────────── */
+.main-layout {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  padding: 15px;
+  gap: 15px;
+}
+
+/* ── 左侧面板 上下分区 ─────────────────────────────────── */
+.left-panel-top {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 55%;
+  min-height: 200px;
+  overflow-y: auto;
+}
+
+.left-panel-divider {
+  flex-shrink: 0;
+  height: 1px;
+  margin: 6px 0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.left-panel-bottom {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Tab 切换条 ──────────────────────────────────────── */
+.sidebar-tabs {
+  display: flex;
+  gap: 0;
+  flex-shrink: 0;
+}
+
+.sidebar-tab {
+  flex: 1;
+  padding: 7px 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.sidebar-tab:hover {
+  color: var(--text-primary);
+}
+
+.sidebar-tab--active {
+  color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
+}
+
+/* ── 最近对话列表 ────────────────────────────────────── */
+.sidebar-recent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.sidebar-recent::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sidebar-empty {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-secondary);
+  padding: 16px 0;
+}
+
+.sidebar-chat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 6px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.sidebar-chat-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sidebar-chat-preview {
+  font-size: 11px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.sidebar-chat-time {
+  font-size: 9px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+
+.sidebar-chat-item--all {
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 4px;
+  padding-top: 8px;
+  color: var(--accent-primary);
+  font-size: 11px;
+}
+
+.sidebar-chat-item--all:hover {
+  color: var(--accent-primary);
+  background: rgba(255, 179, 71, 0.06);
+}
+
+/* ── 交互模块入口 ────────────────────────────────────── */
+.sidebar-interaction {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-interaction::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sidebar-int-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: color 0.15s, background 0.15s;
+}
+
+.sidebar-int-item:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.sidebar-int-item--active {
+  color: var(--accent-primary);
+}
+
+.sidebar-int-icon {
+  font-size: 14px;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar-int-label {
+  flex: 1;
+}
+
+/* ── 底部固定栏 ──────────────────────────────────────── */
+.sidebar-bottom {
+  display: flex;
+  flex-shrink: 0;
+  padding-top: 4px;
+  gap: 4px;
+}
+
+.sidebar-bottom-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s, transform 0.15s;
+}
+
+.sidebar-bottom-btn:hover {
+  color: var(--text-primary);
+  transform: scale(1.15);
+}
+
+.sidebar-bottom-btn--active {
+  color: var(--accent-primary);
+  text-shadow: 0 0 10px rgba(255, 179, 71, 0.5);
+}
+
+/* ── 底部 popover ────────────────────────────────────── */
+.bottom-popover-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 998;
+}
+
+.bottom-popover {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 8px;
+  min-width: 140px;
+  background: rgba(22, 33, 62, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 4px;
+  z-index: 999;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.bottom-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-family: var(--font-ui);
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.bottom-popover-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.bottom-popover-item--danger {
+  color: var(--error);
+}
+
+.bottom-popover-divider {
+  height: 1px;
+  margin: 4px 0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ── 左侧面板 ──────────────────────────────────────────── */
+.left-panel {
+  width: 350px;
+  min-width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  background-color: rgba(26, 26, 46, 0.45);
+  border: 3px solid #2a3b5a;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* 毛玻璃效果 - 增强版 */
+.left-panel.glass-effect {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  /* 极细的像素描边，模拟 CRT 玻璃边缘 */
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+}
+
+/* 左侧面板滚动条美化 */
+.left-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.left-panel::-webkit-scrollbar-track {
+  background: transparent;
+  border: none;
+}
+
+.left-panel::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border: 1px solid transparent;
+}
+
+/* ── 右侧聊天面板 ──────────────────────────────────────── */
+.chat-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(26, 26, 46, 0.35);
+  border: 3px solid #2a3b5a;
+  overflow: hidden;
+  position: relative;
+}
+
+/* 毛玻璃效果 - 增强版 */
+.chat-panel.glass-effect {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  /* 极细的像素描边，模拟 CRT 玻璃边缘 */
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+}
+
+/* ── 标签内容区域 ──────────────────────────────────────── */
+.tab-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: tab-enter 0.3s ease-out;
+}
+
+.tab-title-bar {
+  flex-shrink: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.tab-title-text {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: var(--text-primary);
+  opacity: 0.8;
+}
+
+@keyframes tab-enter {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ── 消息列表容器 ──────────────────────────────────────── */
+.message-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+}
+
+/* ── 输入区域 ──────────────────────────────────────────── */
+.input-area {
+  padding: 10px 14px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: rgba(28, 46, 74, 0.12);
+}
+
+.input-area.glass-effect {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.input-area-inner {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  background: rgba(28, 46, 74, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 8px 12px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-area-inner:focus-within {
+  border-color: rgba(74, 119, 197, 0.4);
+  box-shadow: 0 0 12px rgba(74, 119, 197, 0.1);
+}
+
+/* 终端提示符 */
+.input-prompt {
+  flex-shrink: 0;
+  color: var(--success);
+  font-family: monospace;
+  font-size: 14px;
+  opacity: 0.35;
+  padding-bottom: 2px;
+  transition: opacity 0.2s;
+}
+
+.input-prompt--active {
+  opacity: 0.9;
+  text-shadow: 0 0 8px var(--success);
+}
+
+/* auto-resize textarea */
+.chat-textarea {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  resize: none;
+  color: var(--text-primary);
+  font-family: var(--font-readable);
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 0;
+  min-height: 36px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.chat-textarea::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.chat-textarea::-webkit-scrollbar {
+  width: 3px;
+}
+
+/* 右侧工具栏 */
+.input-tools {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.input-tool-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s, background 0.15s;
+}
+
+.input-tool-btn:hover {
+  color: var(--accent-primary);
+  background: rgba(255, 179, 71, 0.08);
+}
+
+.input-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  opacity: 0.35;
+  font-family: monospace;
+}
+
+/* ── 认证页面专用样式 ─────────────────────────────────── */
+
+.auth-chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 3px solid #2a3b5a;
+  background-color: rgba(28, 46, 74, 0.3);
+}
+
+.auth-chat-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.auth-chat-input-row .pixel-input {
+  flex: 1;
+}
+
+.auth-chat-optional-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  margin-top: auto;
+  border-top: 2px solid rgba(42, 59, 90, 0.5);
+}
+
+.pixel-link {
+  color: var(--accent-primary);
+  text-decoration: none;
+  font-size: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.pixel-link:hover {
+  color: #ffcc00;
+}
+
+/* 加载指示器 */
+.loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.loading-dots::after {
+  content: '...';
+  animation: loading-dots 1.5s infinite;
+}
+
+@keyframes loading-dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+/* 状态面板情感文本 */
+.status-panel__emotion {
+  text-align: center;
+  padding: 8px;
+  font-size: 13px;
+  color: var(--accent-secondary);
+  background-color: rgba(28, 46, 74, 0.3);
+  border: 2px solid #2a3b5a;
+}
+
+/* ── 右侧可折叠面板 ────────────────────────────────────── */
+.right-panel {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  background-color: rgba(26, 26, 46, 0.35);
+  border: 3px solid var(--border-color);
+  overflow: hidden;
+  transition: width 0.25s ease, min-width 0.25s ease;
+}
+
+.right-panel--open {
+  width: 280px;
+  min-width: 280px;
+}
+
+.right-panel--closed {
+  width: 36px;
+  min-width: 36px;
+}
+
+.right-panel.glass-effect {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+}
+
+.right-panel-toggle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 48px;
+  background: rgba(28, 46, 74, 0.5);
+  border: 2px solid var(--border-color);
+  border-left: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 2;
+  transition: border-color var(--transition-speed), background var(--transition-speed);
+}
+
+.right-panel-toggle:hover {
+  border-color: var(--accent-primary);
+  background: rgba(255, 179, 71, 0.1);
+}
+
+.right-panel-toggle-icon {
+  font-size: 10px;
+  color: var(--text-secondary);
+  transition: color var(--transition-speed);
+}
+
+.right-panel-toggle:hover .right-panel-toggle-icon {
+  color: var(--accent-primary);
+}
+
+.right-panel-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-left: 22px; /* 为折叠按钮留空间 */
+}
+
+.right-panel-header {
+  padding: 12px 14px 8px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.right-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+
+.right-panel-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+/* ── 折叠态竖排标签 ──────────────────────────────────── */
+.right-panel-label {
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-size: 9px;
+  color: var(--text-secondary);
+  opacity: 0.4;
+  font-family: var(--font-pixel-en);
+  pointer-events: none;
+}
+
+/* ── 信息统计项 ──────────────────────────────────────── */
+.info-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.info-stat-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-ui);
+}
+
+.info-stat-value {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-family: var(--font-pixel-en);
+  font-weight: bold;
+}
+
+/* ── 响应式设计 ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .main-layout {
+    flex-direction: column;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .left-panel {
+    width: 100%;
+    min-width: unset;
+    max-height: 280px;
+  }
+
+  .character-panel {
+    min-height: 180px;
+  }
+
+  .input-area::before {
+    display: none;
+  }
+
+  .right-panel {
+    display: none;
+  }
+}

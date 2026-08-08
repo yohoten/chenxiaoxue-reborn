@@ -1,0 +1,54 @@
+# ─── Python ───────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ─── Node / 前端 ──────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# ─── Rust / Tauri ─────────────────────────────────────────
+src-tauri/target/
+src-tauri/gen/
+src-tauri/debug/
+
+# ─── 环境变量与密钥 ────────────────────────────────────────
+# 真实 .env 一律不入库，保留 .env.example 作为模板
+.env
+.env.*
+!.env.example
+
+# ─── 运行时数据 / 数据库 ───────────────────────────────────
+backend/data/
+backend/*.db
+backend/logs/
+
+# ─── 大体积二进制资源（约 730MB，超出 Gitee 免费仓库限制）──
+# 如需入库，删除下面几行即可
+resource/Background Image/
+resource/Sound/
+resource/Star Map/
+frontend/public/assets/backgrounds/
+
+# ─── IDE / 操作系统 ───────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─── 日志 ─────────────────────────────────────────────────
+*.log
+*.log.*

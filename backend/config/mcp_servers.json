@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "bing_cn": {
+      "type": "sse",
+      "url": "https://mcp-bing-cn.ksai.scnet.cn:58043/sse",
+      "enabled": true,
+      "description": "必应中文搜索服务"
+    }
+  }
+}

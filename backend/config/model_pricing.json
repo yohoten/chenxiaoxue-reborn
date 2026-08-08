@@ -1,0 +1,28 @@
+{
+  "_comment": "模型价格配置 (USD / 1K tokens)，修改后重启生效",
+  "deepseek": {
+    "deepseek-chat": 0.008,
+    "deepseek-reasoner": 0.028,
+    "deepseek-v4flash": 0.028,
+    "deepseek-v4pro": 0.048
+  },
+  "openai": {
+    "gpt-4o-mini": 0.15,
+    "gpt-4o": 2.5,
+    "gpt-4-turbo": 10.0
+  },
+  "qwen": {
+    "qwen-turbo": 0.03,
+    "qwen-plus": 0.08,
+    "qwen-max": 0.2
+  },
+  "doubao": {
+    "doubao-pro-32k": 0.1,
+    "doubao-pro-128k": 0.2
+  },
+  "kimi": {
+    "moonshot-v1-8k": 0.1,
+    "moonshot-v1-32k": 0.2
+  },
+  "default_cost": 0.1
+}

@@ -1,0 +1,166 @@
+/* 外部 MCP 服务器面板样式 */
+
+.external-mcp-panel {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.external-mcp-panel h2 {
+  color: #667eea;
+  margin-bottom: 20px;
+  font-size: 1.8em;
+}
+
+.server-list {
+  display: grid;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.server-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.server-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.2);
+}
+
+.server-card.disabled {
+  opacity: 0.6;
+  background: rgba(240, 240, 240, 0.9);
+}
+
+.server-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.server-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 1.3em;
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+.status-badge.connected {
+  background: #10b981;
+  color: white;
+}
+
+.status-badge.disconnected {
+  background: #ef4444;
+  color: white;
+}
+
+.server-info {
+  display: grid;
+  gap: 10px;
+}
+
+.info-row {
+  display: flex;
+  gap: 10px;
+  font-size: 0.95em;
+}
+
+.info-row .label {
+  color: #666;
+  min-width: 80px;
+  font-weight: 500;
+}
+
+.info-row .value {
+  color: #333;
+  flex: 1;
+}
+
+.info-row .value.url {
+  color: #667eea;
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.disabled-hint {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #fef3c7;
+  border-left: 3px solid #f59e0b;
+  border-radius: 4px;
+  color: #92400e;
+  font-size: 0.9em;
+}
+
+.panel-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 15px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.refresh-btn {
+  padding: 10px 20px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.refresh-btn:hover {
+  background: #5568d3;
+}
+
+.hint {
+  color: #999;
+  font-size: 0.85em;
+  margin: 0;
+}
+
+.hint code {
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #667eea;
+}
+
+.loading,
+.error,
+.empty {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.error {
+  color: #ef4444;
+}
+
+.empty {
+  color: #999;
+}
+
+.empty .hint {
+  margin-top: 10px;
+  font-size: 0.9em;
+}
