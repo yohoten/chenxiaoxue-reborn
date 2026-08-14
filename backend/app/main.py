@@ -7,9 +7,16 @@ Chen筱雪 Reborn - FastAPI 应用入口
 
 from __future__ import annotations
 
+import sys
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
+
+# 确保 app 包可被导入：无论从 backend 还是 backend/app 目录直接运行 python main.py，
+# 都将 backend/ 加入 sys.path（app 包的父目录）
+BACKEND_DIR = Path(__file__).resolve().parent.parent
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware

@@ -26,6 +26,7 @@ import random
 import asyncio
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
 from typing import AsyncGenerator, Optional, List, Dict, Any
 
 import httpx
@@ -138,33 +139,33 @@ class AIRouter:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
-def __init__(self):
-    if self._initialized:
-        return
+    def __init__(self):
+        if self._initialized:
+            return
 
-    self.models: list[ModelInfo] = []
-    self._http_client: Optional[httpx.AsyncClient] = None
-    self._load_pricing()
-    self._load_providers()
-    self._initialized = True
-    logger.info(
-        f"AI Router 初始化完成: {len(self.models)} 个模型可用"
-    )
+        self.models: list[ModelInfo] = []
+        self._http_client: Optional[httpx.AsyncClient] = None
+        self._load_pricing()
+        self._load_providers()
+        self._initialized = True
+        logger.info(
+            f"AI Router 初始化完成: {len(self.models)} 个模型可用"
+        )
 
-def _load_pricing(self):
-    """从 JSON 配置文件加载模型价格"""
-    import json
-    pricing_path = Path(__file__).parent.parent.parent / "config" / "model_pricing.json"
-    try:
-        with open(pricing_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        self._pricing = {k: v for k, v in data.items() if isinstance(v, dict)}
-        self._default_cost = data.get("default_cost", 0.1)
-        logger.debug(f"模型价格配置已加载 ({len(self._pricing)} 提供方)")
-    except Exception as e:
-        logger.warning(f"加载模型价格配置失败: {e}，使用默认价格")
-        self._pricing = {}
-        self._default_cost = 0.1
+    def _load_pricing(self):
+        """从 JSON 配置文件加载模型价格"""
+        import json
+        pricing_path = Path(__file__).parent.parent.parent / "config" / "model_pricing.json"
+        try:
+            with open(pricing_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self._pricing = {k: v for k, v in data.items() if isinstance(v, dict)}
+            self._default_cost = data.get("default_cost", 0.1)
+            logger.debug(f"模型价格配置已加载 ({len(self._pricing)} 提供方)")
+        except Exception as e:
+            logger.warning(f"加载模型价格配置失败: {e}，使用默认价格")
+            self._pricing = {}
+            self._default_cost = 0.1
 
     async def _get_http_client(self) -> httpx.AsyncClient:
         """获取共享的 httpx 客户端（连接池复用）"""

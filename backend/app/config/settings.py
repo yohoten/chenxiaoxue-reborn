@@ -20,8 +20,11 @@ class Settings(BaseSettings):
     优先级: 环境变量 > .env 文件 > 默认值
     """
 
+    # .env 位于 backend/ 目录下（settings.py 的上上级目录）。
+    # 使用基于 __file__ 的绝对路径定位，避免因启动目录不同
+    # （backend/ vs backend/app/）导致 .env 加载失败。
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=Path(__file__).resolve().parent.parent.parent / ".env",
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,

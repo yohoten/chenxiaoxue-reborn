@@ -3,11 +3,10 @@ setlocal enabledelayedexpansion
 title 陈筱雪 Reborn - 启动器
 
 :: ============================================================
-::  陈筱雪 Reborn — 统一启动器 v2.1
+::  陈筱雪 Reborn — 统一启动器 v2.2
 ::  用法: launcher.bat [mode]
 ::    mode: setup | dev | backend | frontend | tauri | test | prod
-::  重要: 请确保此脚本所在路径不包含 & 等特殊字符
-::        或使用 cmd /c "cd /d "路径" && launcher.bat" 方式调用
+::  兼容: 支持路径含 &、空格等特殊字符（先 cd 再以相对路径启动）
 :: ============================================================
 
 :: 获取脚本所在目录（处理包含特殊字符的路径）
@@ -37,7 +36,7 @@ goto :menu
 cls
 echo.
 echo   ========================================
-echo     陈筱雪 Reborn - 统一启动器 v2.1
+echo     陈筱雪 Reborn - 统一启动器 v2.2
 echo   ========================================
 echo.
 echo   [1] 环境安装     (首次使用请先执行)
@@ -157,13 +156,15 @@ call :check_venv
 if %errorlevel% neq 0 goto :end
 
 echo   [1/2] 启动后端 (端口 8000)...
-start "" cmd /k "cd /d "%BACKEND%" && .venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000"
+cd /d "%BACKEND%"
+start "陈筱雪 - 后端 (8000)" cmd /k ".venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000"
 
 echo   等待后端就绪 (5 秒)...
 call :wait_seconds 5
 
 echo   [2/2] 启动前端 (端口 5173)...
-start "" cmd /k "cd /d "%FRONTEND%" && node node_modules/vite/bin/vite.js"
+cd /d "%FRONTEND%"
+start "陈筱雪 - 前端 (5173)" cmd /k "node node_modules/vite/bin/vite.js"
 
 echo.
 echo   [ OK ] 开发模式已启动 (双窗口)
@@ -188,7 +189,8 @@ call :check_venv
 if %errorlevel% neq 0 goto :end
 
 echo   启动 FastAPI (端口 8000)...
-start "" cmd /k "cd /d "%BACKEND%" && .venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000"
+cd /d "%BACKEND%"
+start "陈筱雪 - 后端 (8000)" cmd /k ".venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000"
 
 echo.
 echo   [ OK ] 后端已启动
@@ -212,7 +214,8 @@ if not exist "%FRONTEND%\node_modules" (
 )
 
 echo   启动 Vite (端口 5173)...
-start "" cmd /k "cd /d "%FRONTEND%" && node node_modules/vite/bin/vite.js"
+cd /d "%FRONTEND%"
+start "陈筱雪 - 前端 (5173)" cmd /k "node node_modules/vite/bin/vite.js"
 
 echo.
 echo   [ OK ] 前端已启动
@@ -239,14 +242,15 @@ call :check_venv
 if %errorlevel% neq 0 goto :end
 
 echo   启动后端 (后台)...
-start "" cmd /c "cd /d "%BACKEND%" && .venv\Scripts\python.exe -m uvicorn app.main:app --port 8000"
+cd /d "%BACKEND%"
+start "陈筱雪 - 后端 (8000)" cmd /c ".venv\Scripts\python.exe -m uvicorn app.main:app --port 8000"
 
 echo   等待后端就绪...
 call :wait_seconds 3
 
 echo   启动 Tauri 桌面应用...
 cd /d "%FRONTEND%"
-start "" cmd /k "npm run tauri dev"
+start "陈筱雪 - Tauri" cmd /k "npm run tauri dev"
 
 echo.
 echo   [ OK ] Tauri 桌面模式已启动
@@ -265,11 +269,13 @@ call :check_venv
 if %errorlevel% neq 0 goto :end
 
 echo   启动后端...
-start "" cmd /c "cd /d "%BACKEND%" && .venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000"
+cd /d "%BACKEND%"
+start "陈筱雪 - 后端 (8000)" cmd /c ".venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000"
 call :wait_seconds 5
 
 echo   启动前端...
-start "" cmd /c "cd /d "%FRONTEND%" && node node_modules/vite/bin/vite.js"
+cd /d "%FRONTEND%"
+start "陈筱雪 - 前端 (5173)" cmd /c "node node_modules/vite/bin/vite.js"
 call :wait_seconds 5
 
 echo   打开浏览器...
@@ -303,7 +309,8 @@ if not exist "%BACKEND%\.env" (
 echo   [注意] 生产模式将启动后端 (无热重载)
 echo.
 echo   启动 FastAPI (端口 8000, 生产配置)...
-start "" cmd /k "cd /d "%BACKEND%" && .venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
+cd /d "%BACKEND%"
+start "陈筱雪 - 后端 (8000)" cmd /k ".venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
 
 echo.
 echo   [ OK ] 生产模式已启动
