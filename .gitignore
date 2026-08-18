@@ -16,6 +16,7 @@ node_modules/
 frontend/dist/
 frontend/.vite/
 *.tsbuildinfo
+frontend/vite-log.txt
 
 # ─── Rust / Tauri ─────────────────────────────────────────
 src-tauri/target/
@@ -27,11 +28,20 @@ src-tauri/debug/
 .env
 .env.*
 !.env.example
+config.ini
+*.key
+*.pem
+*.p12
 
 # ─── 运行时数据 / 数据库 ───────────────────────────────────
 backend/data/
 backend/*.db
 backend/logs/
+*.db
+*.db-journal
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
 
 # ─── 大体积二进制资源（约 730MB，超出 Gitee 免费仓库限制）──
 # 如需入库，删除下面几行即可

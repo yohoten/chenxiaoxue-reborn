@@ -1,0 +1,13 @@
+# ─── chenxiaoxue-reborn 依赖说明 ─────────────────────────────
+# 本仓库为 Tauri + React + FastAPI 全栈项目：
+#   - 后端 Python 依赖见 backend/requirements.txt（下方引用）
+#   - 前端依赖为 Node 项目，见 frontend/package.json，使用 npm install
+#   - 桌面壳为 Tauri (Rust)，见 src-tauri/Cargo.toml，使用 cargo build
+#
+# 安装后端依赖：
+#   pip install -r requirements.txt
+# 启动后端：
+#   uvicorn app.main:app --host 127.0.0.1 --port 8000
+
+# 直接引用后端依赖清单，避免两处维护
+-r backend/requirements.txt
