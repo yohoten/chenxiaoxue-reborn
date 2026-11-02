@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>陈筱雪 Reborn · 项目门户</title>
+<meta name="description" content="陈筱雪 Reborn：基于 FastAPI + React + Tauri 的多模型 AI 助手，支持 MCP 协议、像素美学与情感可视化。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     陈筱雪 Reborn — 项目门户 / 单文件、零外部资源依赖
+     设计约束：硬边阴影（像素风不使用模糊）、CRT 扫描线、
+     中文回退到系统等宽 CJK 字体（Press Start 2P 不含汉字）
+     ============================================================ */
+  :root {
+    --bg:            #0b0f1a;
+    --bg-panel:      #111726;
+    --bg-inset:      #0a0e18;
+    --line:          #2b3a5c;
+    --line-hi:       #44598a;
+    --txt:           #d7e3ff;
+    --txt-dim:       #7f92bd;
+    --accent:        #ff6b9d;   /* 主强调：像素粉 */
+    --accent-2:      #4ee1c1;   /* 次强调：薄荷绿 */
+    --accent-3:      #ffd166;   /* 警示/高亮：琥珀 */
+    --accent-4:      #7aa2ff;   /* 链接：蓝 */
+    --font-pixel:    'Press Start 2P', 'Courier New', monospace;
+    --font-term:     'VT323', 'Consolas', 'Courier New', monospace;
+    --font-cjk:      'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', 'SimHei', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: var(--font-term), var(--font-cjk);
+    font-size: 17px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    /* 像素网格底纹 */
+    background-image:
+      linear-gradient(rgba(122,162,255,.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(122,162,255,.045) 1px, transparent 1px);
+    background-size: 32px 32px, 32px 32px;
+  }
+
+  /* CRT 扫描线 + 暗角，覆盖全屏但不拦截点击 */
+  .crt {
+    position: fixed; inset: 0; z-index: 9000; pointer-events: none;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px),
+      radial-gradient(120% 100% at 50% 0%, transparent 55%, rgba(0,0,0,.55) 100%);
+    mix-blend-mode: multiply;
+  }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ---------------- 顶部 ---------------- */
+  header.hero {
+    position: relative;
+    border-bottom: 4px solid var(--line);
+    padding: 44px 0 28px;
+    margin-bottom: 34px;
+    overflow: hidden;
+  }
+  /* 顶部霓虹辉光（纯 CSS，无图片） */
+  header.hero::before {
+    content: ""; position: absolute; inset: -40% -10% auto; height: 320px;
+    background: radial-gradient(60% 60% at 30% 50%, rgba(255,107,157,.18), transparent 70%),
+                radial-gradient(50% 50% at 75% 40%, rgba(78,225,193,.14), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; }
+
+  pre.logo {
+    font-family: var(--font-pixel);
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--accent);
+    margin: 0 0 14px;
+    text-shadow: 3px 3px 0 #000, 0 0 18px rgba(255,107,157,.45);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .logo .c2 { color: var(--accent-2); }
+  .logo .c3 { color: var(--accent-3); }
+
+  h1.title {
+    font-family: var(--font-pixel);
+    font-size: 20px;
+    margin: 0 0 6px;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 3px 3px 0 #000;
+  }
+  .subtitle { color: var(--txt-dim); margin: 0 0 18px; font-size: 16px; }
+
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    padding: 7px 10px;
+    border: 2px solid var(--line-hi);
+    background: var(--bg-panel);
+    color: var(--txt);
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .badge.pink  { border-color: var(--accent);   color: var(--accent); }
+  .badge.mint  { border-color: var(--accent-2); color: var(--accent-2); }
+  .badge.amber { border-color: var(--accent-3); color: var(--accent-3); }
+  .badge.blue  { border-color: var(--accent-4); color: var(--accent-4); }
+
+  /* ECG 波形（SVG，纯装饰） */
+  .ecg { margin: 22px 0 4px; }
+  .ecg path {
+    fill: none; stroke: var(--accent-2); stroke-width: 2;
+    stroke-dasharray: 120 480; animation: ecg 3.2s linear infinite;
+    filter: drop-shadow(0 0 4px rgba(78,225,193,.7));
+  }
+  @keyframes ecg { to { stroke-dashoffset: -600; } }
+  .ecg-meta { font-family: var(--font-pixel); font-size: 9px; color: var(--txt-dim); }
+
+  /* ---------------- 导航 ---------------- */
+  nav.nav {
+    position: sticky; top: 0; z-index: 500;
+    display: flex; flex-wrap: wrap; gap: 6px;
+    padding: 10px 0; margin-bottom: 30px;
+    background: rgba(11,15,26,.94);
+    border-bottom: 2px solid var(--line);
+    backdrop-filter: blur(4px);
+  }
+  nav.nav a {
+    font-family: var(--font-pixel); font-size: 9px; line-height: 1;
+    padding: 9px 12px; color: var(--txt-dim); text-decoration: none;
+    border: 2px solid transparent;
+  }
+  nav.nav a:hover { color: var(--accent); border-color: var(--accent); background: rgba(255,107,157,.08); }
+
+  /* ---------------- 区块 ---------------- */
+  section { margin-bottom: 46px; scroll-margin-top: 70px; }
+  h2 {
+    font-family: var(--font-pixel); font-size: 13px; line-height: 1.5;
+    margin: 0 0 6px; color: #fff; text-shadow: 2px 2px 0 #000;
+    display: flex; align-items: center; gap: 10px;
+  }
+  h2 .idx { color: var(--accent); }
+  .lede { color: var(--txt-dim); margin: 0 0 20px; font-size: 16px; }
+
+  /* 卡片 */
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); }
+  .card {
+    background: var(--bg-panel);
+    border: 3px solid var(--line);
+    padding: 16px 18px;
+    transition: transform .12s steps(2), border-color .12s;
+  }
+  .card:hover { transform: translate(-3px, -3px); border-color: var(--accent); box-shadow: 5px 5px 0 rgba(255,107,157,.22); }
+  .card h3 { font-family: var(--font-pixel); font-size: 10px; line-height: 1.6; margin: 0 0 10px; color: var(--accent-2); }
+  .card h3 span { color: var(--txt-dim); }
+  .card p { margin: 0; font-size: 15px; color: var(--txt); }
+  .card ul { margin: 8px 0 0; padding-left: 18px; font-size: 15px; color: var(--txt-dim); }
+  .card li { margin-bottom: 4px; }
+
+  /* 表格 */
+  table { width: 100%; border-collapse: collapse; background: var(--bg-panel); border: 3px solid var(--line); font-size: 15px; }
+  th, td { padding: 10px 14px; border-bottom: 2px solid var(--line); text-align: left; vertical-align: top; }
+  th { font-family: var(--font-pixel); font-size: 9px; color: var(--accent-3); background: var(--bg-inset); line-height: 1.6; }
+  tr:last-child td { border-bottom: none; }
+  td code { background: var(--bg-inset); padding: 1px 6px; border: 1px solid var(--line); }
+
+  /* 目录树 / 代码块 */
+  .term {
+    background: var(--bg-inset);
+    border: 3px solid var(--line);
+    border-left: 6px solid var(--accent-2);
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: var(--font-term), var(--font-cjk);
+    font-size: 16px;
+    line-height: 1.65;
+    margin: 0;
+  }
+  .term .dir  { color: var(--accent-4); }
+  .term .file { color: var(--txt); }
+  .term .cmt  { color: var(--txt-dim); }
+  .term .key  { color: var(--accent); }
+  .term .val  { color: var(--accent-2); }
+
+  .cmd-block { position: relative; margin-top: 12px; }
+  .cmd-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    background: var(--bg-inset); border: 3px solid var(--line); border-bottom: none;
+    padding: 8px 12px;
+    font-family: var(--font-pixel); font-size: 9px; color: var(--txt-dim); line-height: 1.6;
+  }
+  .copy-btn {
+    font-family: var(--font-pixel); font-size: 8px; line-height: 1;
+    padding: 7px 10px; cursor: pointer;
+    color: var(--accent-2); background: transparent;
+    border: 2px solid var(--accent-2);
+  }
+  .copy-btn:hover { background: var(--accent-2); color: #06121a; }
+  .copy-btn.done { border-color: var(--accent-3); color: var(--accent-3); }
+
+  /* 链接 */
+  a.lnk { color: var(--accent-4); text-decoration: none; border-bottom: 1px dotted var(--accent-4); }
+  a.lnk:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* 提示条 */
+  .note {
+    border: 3px solid var(--accent-3);
+    background: rgba(255,209,102,.07);
+    padding: 14px 16px; font-size: 15px; color: var(--txt);
+  }
+  .note b { color: var(--accent-3); font-family: var(--font-pixel); font-size: 9px; line-height: 1.6; }
+  .note code { background: var(--bg-inset); padding: 1px 6px; border: 1px solid var(--line); }
+
+  .pill {
+    display: inline-block; font-family: var(--font-pixel); font-size: 8px; line-height: 1;
+    padding: 5px 7px; border: 2px solid var(--line-hi); color: var(--txt-dim); margin-right: 6px;
+  }
+  .pill.ok   { border-color: var(--accent-2); color: var(--accent-2); }
+  .pill.miss { border-color: #ff5f56; color: #ff8b84; }
+
+  footer {
+    border-top: 4px solid var(--line); margin-top: 20px; padding-top: 22px;
+    color: var(--txt-dim); font-size: 15px;
+  }
+  .cursor { display: inline-block; width: 9px; background: var(--accent); animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  @media (max-width: 720px) {
+    body { font-size: 16px; }
+    pre.logo { font-size: 7px; }
+    h1.title { font-size: 14px; }
+    nav.nav { gap: 4px; }
+    nav.nav a { font-size: 8px; padding: 7px 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="crt" aria-hidden="true"></div>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div class="hero-inner">
+      <pre class="logo" aria-label="CHEN XIAO XUE REBORN">   ____ _   _ _____ _   _  __  __  ___  _     __   _____
+  / ___| | | | ____| \ | | \ \/ / / _ \| |    \ \ / /_ _|
+ | |   | |_| |  _| |  \| |  \  / | | | | |     \ V / | |
+ | |___|  _  | |___| |\  |  /  \ | |_| | |___   | |  | |
+  \____|_| |_|_____|_| \_| /_/\_\ \___/|_____|  |_| |___|
+              <span class="c2">R E B O R N</span>  <span class="c3">v2.0</span></pre>
+
+      <h1 class="title">陈筱雪 REBORN</h1>
+      <p class="subtitle">FastAPI + React + Tauri 多模型 AI 助手 · 支持 MCP 协议 · 自 PyQt5 像素风桌面应用迁移</p>
+
+      <div class="badges">
+        <span class="badge pink">FastAPI</span>
+        <span class="badge blue">React 18 + TS</span>
+        <span class="badge mint">Tauri 2</span>
+        <span class="badge amber">MCP</span>
+        <span class="badge">SQLite / aiosqlite</span>
+        <span class="badge">JWT Auth</span>
+      </div>
+
+      <div class="ecg" aria-hidden="true">
+        <svg viewBox="0 0 600 60" width="100%" height="52" preserveAspectRatio="none">
+          <path d="M0 38 H120 l8 -4 l6 10 l6 -22 l8 26 l6 -10 H200 l10 -6 l5 12 l6 -20 l7 22 l5 -8 H320 l12 4 H420 l8 -4 l6 10 l6 -22 l8 26 l6 -10 H520 l10 -6 l5 12 l6 -20 l7 22 l5 -8 H600" />
+        </svg>
+      </div>
+      <div class="ecg-meta">// emotion: stable &nbsp;·&nbsp; bpm 72 &nbsp;·&nbsp; ECG 情感可视化已接入<span class="cursor">&nbsp;</span></div>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="页面导航">
+    <a href="#overview">概览</a>
+    <a href="#stack">技术栈</a>
+    <a href="#arch">目录结构</a>
+    <a href="#start">快速启动</a>
+    <a href="#services">服务地址</a>
+    <a href="#modules">后端模块</a>
+    <a href="#api">API</a>
+    <a href="#docs">文档状态</a>
+  </nav>
+
+  <!-- ===================== 概览 ===================== -->
+  <section id="overview">
+    <h2><span class="idx">01</span> 核心特性</h2>
+    <p class="lede">多模型智能路由为系统核心，MCP 协议对外暴露能力，像素美学与情感可视化构成交互层。</p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>🤖 多模型智能路由 <span>ai_router.py</span></h3>
+        <p>依据任务类型与复杂度自动选型，覆盖 DeepSeek、OpenAI、通义千问、豆包、Kimi、Claude 六家供应商。</p>
+        <ul>
+          <li>自动故障转移至备用模型</li>
+          <li>SSE 流式响应</li>
+          <li>复杂问题拆解为子任务的多模型协作与结果聚合</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>🔌 MCP 协议 <span>backend/app/mcp</span></h3>
+        <p>标准 MCP 工具定义，支持 HTTP + SSE，可被外部 MCP 客户端发现与调用，亦支持接入第三方 MCP 服务器。</p>
+        <ul>
+          <li><code>chat_completion</code> · <code>analyze_emotion</code></li>
+          <li><code>translate</code> · <code>get_models</code></li>
+          <li><code>collaborative_chat</code></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>🎨 像素美学 <span>styles/</span></h3>
+        <p>自 PyQt5 时代延续的像素主题，CSS 自定义属性集中管理，含 ASCII 装饰与 CRT 扫描线。</p>
+        <ul>
+          <li>GIF 动态背景轮播</li>
+          <li>打字机消息渲染</li>
+          <li>GIF/静态角色图资源池</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>🔐 用户认证 <span>JWT + bcrypt</span></h3>
+        <p>Access Token 7 天 / Refresh Token 30 天，多用户数据完全隔离，配套像素风登录与注册界面。</p>
+      </div>
+
+      <div class="card">
+        <h3>✍️ Humanizer <span>AI 文本检测</span></h3>
+        <p>24 种 AI 写作模式检测与人性化改写建议，0–100% 可视化评分，规则依据 Wikipedia 写作指南。</p>
+      </div>
+
+      <div class="card">
+        <h3>💚 情感与记忆 <span>ECG / 梦境 / 星图</span></h3>
+        <p>真实心电波形（P-QRS-T）Canvas 绘制、梦境解析与符号百科、历史对话星图可视化、自我进化记忆系统。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 技术栈 ===================== -->
+  <section id="stack">
+    <h2><span class="idx">02</span> 技术栈</h2>
+    <p class="lede">三层结构：Python 异步后端、Vite 前端、Rust 桌面壳。</p>
+    <table>
+      <thead>
+        <tr><th>层级</th><th>技术选型</th><th>说明</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>后端框架</td><td><code>FastAPI + Uvicorn</code></td><td>Python 3.10+，异步路由</td></tr>
+        <tr><td>数据存储</td><td><code>SQLAlchemy + aiosqlite</code></td><td>SQLite 异步读写，免部署数据库服务</td></tr>
+        <tr><td>AI 接入</td><td><code>httpx</code></td><td>异步调用各供应商接口，统一路由</td></tr>
+        <tr><td>前端框架</td><td><code>React 18 + TypeScript</code></td><td>Vite 4 构建，react-router 路由</td></tr>
+        <tr><td>桌面壳</td><td><code>Tauri 2 (Rust)</code></td><td>devUrl 指向 5173，frontendDist 指向 frontend/dist</td></tr>
+        <tr><td>认证</td><td><code>python-jose + bcrypt</code></td><td>JWT 签发与密码散列</td></tr>
+        <tr><td>可视化</td><td><code>three.js</code></td><td>星图 / 场景渲染</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== 目录结构 ===================== -->
+  <section id="arch">
+    <h2><span class="idx">03</span> 目录结构</h2>
+    <p class="lede">点击目录名可在本机文件浏览器中打开（以 <code>file://</code> 方式浏览时有效）。</p>
+    <pre class="term">chenxiaoxue-reborn/
+├── <span class="dir">backend/</span>                    <span class="cmt"># FastAPI 后端 (Python 3.10+)</span>
+│   ├── <span class="dir">app/</span>
+│   │   ├── <span class="dir">config/</span>             <span class="cmt"># Pydantic Settings 配置</span>
+│   │   ├── <span class="dir">models/</span>             <span class="cmt"># ORM + Pydantic Schema</span>
+│   │   ├── <span class="dir">services/</span>
+│   │   │   ├── <span class="file">ai_router.py</span>    <span class="key">★ 多模型智能路由（核心）</span>
+│   │   │   ├── <span class="file">database.py</span>     <span class="cmt"># 异步数据库</span>
+│   │   │   └── <span class="file">emotion_service.py</span> <span class="cmt"># 混合情感分析</span>
+│   │   ├── <span class="dir">mcp/</span>               <span class="cmt"># MCP 协议实现</span>
+│   │   ├── <span class="dir">routers/</span>           <span class="cmt"># 9 个 API 路由模块</span>
+│   │   └── <span class="dir">utils/</span>
+│   └── <span class="file">requirements.txt</span>
+├── <span class="dir">frontend/</span>                   <span class="cmt"># React + TypeScript 前端</span>
+│   ├── <span class="dir">src/components/</span>        <span class="cmt"># Chat / Dream / Emotion / MCP ...</span>
+│   ├── <span class="dir">src/hooks/</span>             <span class="cmt"># useChat / useMCP / useTheme</span>
+│   ├── <span class="dir">src/services/</span>          <span class="cmt"># api / auth / httpClient / mcpClient</span>
+│   └── <span class="dir">src/styles/</span>             <span class="cmt"># 像素主题 CSS</span>
+├── <span class="dir">src-tauri/</span>                  <span class="cmt"># Tauri 桌面壳 (Rust)</span>
+├── <span class="dir">resource/</span>                   <span class="cmt"># 背景 / 角色 / ECG / 音效 / 星图素材</span>
+├── <span class="file">launcher.bat</span>                <span class="cmt"># Windows 统一启动器（转调 launcher.py）</span>
+└── <span class="file">launcher.py</span>                 <span class="cmt"># 启动器主逻辑，菜单见「快速启动」</span></pre>
+  </section>
+
+  <!-- ===================== 快速启动 ===================== -->
+  <section id="start">
+    <h2><span class="idx">04</span> 快速启动</h2>
+    <p class="lede">推荐统一启动器；亦可分别手动启动后端与前端。首次使用请先执行环境安装。</p>
+
+    <div class="cmd-block">
+      <div class="cmd-head">
+        <span>方式一 · 统一启动器（Windows，推荐）</span>
+        <button class="copy-btn" type="button">复制</button>
+      </div>
+      <pre class="term">launcher.bat            <span class="cmt">:: 交互式菜单</span>
+launcher.bat setup      <span class="cmt">:: 一键安装依赖</span>
+launcher.bat dev        <span class="cmt">:: 后端 + 前端（双窗口）</span>
+launcher.bat backend    <span class="cmt">:: 仅后端 :8000</span>
+launcher.bat frontend   <span class="cmt">:: 仅前端 :5173</span>
+launcher.bat tauri      <span class="cmt">:: Tauri 桌面窗口</span>
+launcher.bat test       <span class="cmt">:: 测试模式</span>
+launcher.bat prod       <span class="cmt">:: 生产模式</span>
+launcher.bat stop       <span class="cmt">:: 释放 8000/5173 端口</span>
+
+<span class="cmt">:: PowerShell 下建议：cmd /c launcher.bat dev</span></pre>
+    </div>
+
+    <div class="cmd-block">
+      <div class="cmd-head">
+        <span>方式二 · 手动启动（后端）</span>
+        <button class="copy-btn" type="button">复制</button>
+      </div>
+      <pre class="term">cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000</pre>
+    </div>
+
+    <div class="cmd-block">
+      <div class="cmd-head">
+        <span>方式三 · 手动启动（前端，新终端）</span>
+        <button class="copy-btn" type="button">复制</button>
+      </div>
+      <pre class="term">cd frontend
+npm install
+npm run dev</pre>
+    </div>
+
+    <div class="note" style="margin-top:18px">
+      <b>NOTE</b> &nbsp;首次运行前需配置密钥：<code>cd backend</code> → 复制 <code>.env.example</code> 为 <code>.env</code> → 填入各模型供应商 API Key。
+      <code>.env</code> 已被 <code>.gitignore</code> 排除，不会入库。
+    </div>
+  </section>
+
+  <!-- ===================== 服务地址 ===================== -->
+  <section id="services">
+    <h2><span class="idx">05</span> 服务地址</h2>
+    <p class="lede">服务启动后方可访问；未启动时浏览器会提示连接被拒绝。</p>
+    <table>
+      <thead><tr><th>服务</th><th>地址</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>前端</td><td><a class="lnk" href="http://localhost:5173" target="_blank" rel="noopener">http://localhost:5173</a></td><td>Vite 开发服务器</td></tr>
+        <tr><td>API 文档</td><td><a class="lnk" href="http://localhost:8000/docs" target="_blank" rel="noopener">http://localhost:8000/docs</a></td><td>Swagger UI（已中文化）</td></tr>
+        <tr><td>健康检查</td><td><a class="lnk" href="http://localhost:8000/health" target="_blank" rel="noopener">http://localhost:8000/health</a></td><td>服务存活探测</td></tr>
+        <tr><td>MCP 信息</td><td><a class="lnk" href="http://localhost:8000/mcp/info" target="_blank" rel="noopener">http://localhost:8000/mcp/info</a></td><td>MCP 服务器元数据</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== 后端模块 ===================== -->
+  <section id="modules">
+    <h2><span class="idx">06</span> 后端模块</h2>
+    <p class="lede">9 个路由模块与关键服务，均位于 <code>backend/app/</code>。</p>
+    <div class="grid">
+      <div class="card">
+        <h3>路由模块 <span>routers/</span></h3>
+        <ul>
+          <li><code>auth.py</code> — 注册 / 登录 / 当前用户</li>
+          <li><code>chat.py</code> — 消息发送与历史管理</li>
+          <li><code>emotion.py</code> — 情感分析</li>
+          <li><code>humanizer.py</code> — AI 文本检测与改写</li>
+          <li><code>dream.py</code> — 梦境解析与符号</li>
+          <li><code>brain.py</code> — 记忆 / 知识脑</li>
+          <li><code>self_improving.py</code> — 自我进化</li>
+          <li><code>resources.py</code> — 背景与角色资源</li>
+          <li><code>mcp.py</code> — MCP 工具与流式执行</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>服务层 <span>services/</span></h3>
+        <ul>
+          <li><code>ai_router.py</code> — 多模型路由与协作</li>
+          <li><code>auth_service.py</code> — JWT 与用户</li>
+          <li><code>emotion_service.py</code> — 混合情感分析</li>
+          <li><code>humanizer_service.py</code> — 24 种模式检测</li>
+          <li><code>dream_service.py</code> / <code>brain_service.py</code></li>
+          <li><code>memory_service.py</code> / <code>stopwords_service.py</code></li>
+          <li><code>database.py</code> — 异步数据库</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>MCP 实现 <span>mcp/</span></h3>
+        <ul>
+          <li><code>server.py</code> — 服务器主体</li>
+          <li><code>tools.py</code> — 工具定义与执行</li>
+          <li><code>external_server.py</code> — 第三方 MCP 接入</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== API ===================== -->
+  <section id="api">
+    <h2><span class="idx">07</span> API 速查</h2>
+    <p class="lede">完整交互式文档见 <a class="lnk" href="http://localhost:8000/docs" target="_blank" rel="noopener">/docs</a>；下表为常用端点。</p>
+    <table>
+      <thead><tr><th>方法</th><th>路径</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>POST</td><td><code>/api/auth/register</code></td><td>用户注册</td></tr>
+        <tr><td>POST</td><td><code>/api/auth/login</code></td><td>用户登录</td></tr>
+        <tr><td>GET</td><td><code>/api/auth/me</code></td><td>获取当前用户</td></tr>
+        <tr><td>POST</td><td><code>/api/chat/send</code></td><td>发送聊天消息</td></tr>
+        <tr><td>GET</td><td><code>/api/chat/history</code></td><td>获取聊天历史</td></tr>
+        <tr><td>DELETE</td><td><code>/api/chat/history/{id}</code></td><td>删除单条记录</td></tr>
+        <tr><td>POST</td><td><code>/api/emotion/analyze</code></td><td>情感分析</td></tr>
+        <tr><td>POST</td><td><code>/api/humanizer/analyze</code></td><td>AI 文本分析</td></tr>
+        <tr><td>POST</td><td><code>/api/humanizer/rewrite</code></td><td>人性化改写</td></tr>
+        <tr><td>GET</td><td><code>/api/resources/backgrounds</code></td><td>背景列表</td></tr>
+        <tr><td>GET</td><td><code>/api/resources/characters</code></td><td>角色列表</td></tr>
+        <tr><td>GET</td><td><code>/mcp/info</code></td><td>MCP 服务器信息</td></tr>
+        <tr><td>GET</td><td><code>/mcp/tools</code></td><td>MCP 工具列表</td></tr>
+        <tr><td>POST</td><td><code>/mcp/execute</code></td><td>执行 MCP 工具</td></tr>
+        <tr><td>POST</td><td><code>/mcp/stream</code></td><td>流式执行 MCP 工具</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== 文档状态 ===================== -->
+  <section id="docs">
+    <h2><span class="idx">08</span> 文档与资源状态</h2>
+    <p class="lede">下列条目按仓库实况核对，标 <span class="pill miss">缺失</span> 者表示 <code>README.md</code> 已引用但文件尚未入库。</p>
+    <table>
+      <thead><tr><th>条目</th><th>状态</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><a class="lnk" href="./README.md">README.md</a></td>
+          <td><span class="pill ok">存在</span></td>
+          <td>项目主文档，含架构、特性、API 与部署说明</td>
+        </tr>
+        <tr>
+          <td><code>dosc/</code>（README 引用约 15 篇专题文档）</td>
+          <td><span class="pill miss">缺失</span></td>
+          <td>目录不存在，README 中「文档索引」全部链接当前无效</td>
+        </tr>
+        <tr>
+          <td><code>DEVELOPMENT_LOG.md</code></td>
+          <td><span class="pill miss">缺失</span></td>
+          <td>README 标注为「完整开发日志」，文件未入库</td>
+        </tr>
+        <tr>
+          <td><a class="lnk" href="./launcher.py">launcher.py</a> / <a class="lnk" href="./launcher.bat">launcher.bat</a></td>
+          <td><span class="pill ok">存在</span></td>
+          <td>启动器主逻辑与 Windows shim，支持 8 个子命令</td>
+        </tr>
+        <tr>
+          <td><a class="lnk" href="./frontend/src">frontend/src</a></td>
+          <td><span class="pill ok">存在</span></td>
+          <td>React 源码：components / hooks / services / styles</td>
+        </tr>
+        <tr>
+          <td><a class="lnk" href="./backend/app">backend/app</a></td>
+          <td><span class="pill ok">存在</span></td>
+          <td>FastAPI 应用：9 路由 + 8 服务 + MCP</td>
+        </tr>
+        <tr>
+          <td><a class="lnk" href="./src-tauri/tauri.conf.json">src-tauri/tauri.conf.json</a></td>
+          <td><span class="pill ok">存在</span></td>
+          <td>productName「陈筱雪」，devUrl 5173</td>
+        </tr>
+        <tr>
+          <td><code>resource/</code> 素材（背景 / 音效 / 星图）</td>
+          <td><span class="pill">已忽略</span></td>
+          <td>约 730MB，被 <code>.gitignore</code> 排除；<code>frontend/public/assets/backgrounds/</code> 同样被忽略</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="note" style="margin-top:18px">
+      <b>TIP</b> &nbsp;本页为自包含单文件，不引用本地 GIF/图片资源，因此不受上述素材被忽略的影响；字体走 Google Fonts，离线时自动降级为系统等宽字体。
+    </div>
+  </section>
+
+  <footer>
+    <div>陈筱雪 Reborn v2.0 · 项目起始 2025.08 · 最后更新 2026.07 · MIT License</div>
+    <div style="margin-top:6px">维护者：陈筱雪 AI 助手开发团队 <span class="cursor">&nbsp;</span></div>
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // 命令复制：优先 Clipboard API，file:// 下回退到 execCommand
+  document.querySelectorAll('.copy-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var block = btn.closest('.cmd-block');
+      var pre = block && block.querySelector('pre.term');
+      if (!pre) return;
+
+      // 去掉行内注释（:: 与 # 之后的内容），保留纯命令
+      var text = pre.innerText.split('\n').map(function (line) {
+        var cut = line.search(/::|#/);
+        return (cut > -1 ? line.slice(0, cut) : line).replace(/\s+$/, '');
+      }).filter(function (l) { return l.trim().length > 0; }).join('\n');
+
+      function mark(ok) {
+        var old = btn.textContent;
+        btn.textContent = ok ? '已复制' : '失败';
+        btn.classList.toggle('done', ok);
+        setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1600);
+      }
+
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(function () { mark(true); }, function () { legacy(); });
+      } else {
+        legacy();
+      }
+
+      function legacy() {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          var ok = document.execCommand('copy');
+          document.body.removeChild(ta);
+          mark(ok);
+        } catch (e) { mark(false); }
+      }
+    });
+  });
+
+  // 导航高亮：滚动时标记当前区块
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.nav a'));
+  var targets = links.map(function (a) { return document.querySelector(a.getAttribute('href')); });
+
+  function sync() {
+    var pos = window.scrollY + 120;
+    var active = 0;
+    targets.forEach(function (sec, i) { if (sec && sec.offsetTop <= pos) active = i; });
+    links.forEach(function (a, i) {
+      a.style.color = i === active ? 'var(--accent)' : '';
+      a.style.borderColor = i === active ? 'var(--accent)' : 'transparent';
+    });
+  }
+  window.addEventListener('scroll', sync, { passive: true });
+  sync();
+})();
+</script>
+</body>
+</html>
